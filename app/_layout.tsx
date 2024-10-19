@@ -1,33 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Provider } from 'react-redux';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import store from '@/src/store/store';
 
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+export default function Layout() {
+  const [loading, setLoading] = useState(true);
+  const [initialRoute, setInitialRoute] = useState('login');
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    const checkUserSession = async () => {
+      const userSession = await AsyncStorage.getItem('userSession');
+      if (userSession) {
+        setInitialRoute('task-list');
+      }
+      setLoading(false);
+    };
 
-  if (!loaded) {
-    return null;
+    checkUserSession();
+  }, []);
+
+  if (loading) {
+    // Return a loading indicator or splash screen while checking session
+    // return <LoadingScreen />;
   }
 
   return (
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-      
-      </Stack>
+    <Provider store={store}>
+      <Stack initialRouteName={initialRoute} />
+    </Provider>
   );
 }
