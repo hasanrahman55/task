@@ -6,6 +6,7 @@ import { auth } from '../firebase';
 import { useDispatch } from 'react-redux';
 import { login } from '../src/store/authSlice';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState('');
@@ -17,6 +18,8 @@ export default function SignUpScreen() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       dispatch(login({ uid: userCredential.user.uid, email: userCredential.user.email! }));
+       // Save session to AsyncStorage after successful login
+       await AsyncStorage.setItem('userSession', JSON.stringify(userCredential));
       router.push('/task-list');
     } catch (error) {
       Alert.alert("Sign-up Error", error.message);

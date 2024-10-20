@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { logout } from '../src/store/authSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TaskListScreen() {
   const dispatch = useDispatch();
@@ -29,6 +30,8 @@ export default function TaskListScreen() {
   const handleLogout = async () => {
     await signOut(auth);
     dispatch(logout());
+    // Clear session from AsyncStorage on logout
+    await AsyncStorage.removeItem('userSession');
     router.push('/login');
   };
 
